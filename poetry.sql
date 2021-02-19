@@ -45,4 +45,36 @@ SELECT COUNT(title) as count_death_poems,
 --avg_char_count_death (342)
 
 
---Question 3
+--Question 3.a
+SELECT emotion.name, AVG(intensity_percent) as avg_intensity, AVG(char_count) as avg_char_count
+FROM poem_emotion
+INNER JOIN emotion ON poem_emotion.emotion_id=emotion.id
+INNER JOIN poem ON poem_emotion.id=poem.id
+GROUP BY emotion.name
+ORDER BY avg_char_count
+--Answer 3.a: Joyful poems are associated with the longest poems and sadness are associated with the shortest poems
+
+--Question 3.b
+
+WITH joy_avg AS
+	(SELECT emotion.name as emotion, AVG(char_count) as avg_joy_char_count
+	FROM poem_emotion
+			INNER JOIN emotion ON poem_emotion.emotion_id=emotion.id
+			INNER JOIN poem ON poem_emotion.id=poem.id
+	GROUP BY emotion.name)
+
+SELECT emotion, avg_joy_char_count, title as poem_title, text as poem_text, char_count, intensity_percent
+FROM joy_avg
+LEFT JOIN emotion ON joy_avg.emotion=emotion.name
+	INNER JOIN poem_emotion ON poem_emotion.emotion_id=emotion.id
+	INNER JOIN poem ON poem_emotion.id=poem.id
+WHERE emotion.name ILIKE 'Joy'
+ORDER BY intensity_percent DESC
+LIMIT 5;
+
+/*Answer 3b - The most joyful poem shares the highest intensity at 98 but it has a character count of 336, 
+which is much higher than the average character count for joyful poems. 
+I do not think these are all classified correctly because it seems like a joyful topic is ambiguous. 
+Is a poem classified as joyful if it's not obviously sad, angry or fearful? The category seems too broad.*/
+
+
