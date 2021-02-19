@@ -102,4 +102,26 @@ WITH fifth_grade AS (SELECT title, text, intensity_percent, char_count, poem_emo
 	UNION ALL
 	SELECT *
 	FROM first_grade
-	ORDER BY intensity_percent;
+	ORDER BY intensity_percent DESC;
+
+/* Answers:
+4a. Fifth graders write teh angriest poems
+4b. Females appear more in the top-5 for grades 1 and 5
+4c. The poem "Rabbits" is my favorite because it uses the phrase "chomp on carrots"*/
+
+--Question 5:
+
+SELECT author.grade_id as grade, 
+		COUNT(CASE WHEN emotion.name = 'Joy' THEN 'joy' END) AS joy_count,
+		COUNT (CASE WHEN emotion.name = 'Anger' THEN 'anger' END) as anger_count,
+		COUNT(CASE WHEN emotion.name = 'Sadness' THEN 'sadness' END) AS sadness_count,
+		COUNT(CASE WHEN emotion.name = 'Fear' THEN 'fear' END) AS fear_count
+FROM poem
+		INNER JOIN poem_emotion ON poem.id=poem_emotion.id
+		INNER JOIN emotion ON poem_emotion.emotion_id=emotion.id
+		INNER JOIN author ON poem.author_id=author.id
+		INNER JOIN gender ON author.gender_id=gender.id
+WHERE author.name ILIKE 'Emily'
+GROUP BY author.grade_id, author.name
+
+-- see excel file
