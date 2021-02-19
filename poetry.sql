@@ -77,4 +77,29 @@ which is much higher than the average character count for joyful poems.
 I do not think these are all classified correctly because it seems like a joyful topic is ambiguous. 
 Is a poem classified as joyful if it's not obviously sad, angry or fearful? The category seems too broad.*/
 
-
+--Question 4
+WITH fifth_grade AS (SELECT title, text, intensity_percent, char_count, poem_emotion.emotion_id, author.grade_id, gender.name AS gender
+				FROM poem
+					INNER JOIN poem_emotion ON poem.id=poem_emotion.id
+					INNER JOIN author ON poem.author_id=author.id
+					INNER JOIN gender ON author.gender_id=gender.id
+				WHERE poem_emotion.emotion_id = 1
+				AND author.grade_id = 5
+				ORDER BY intensity_percent DESC
+				LIMIT 5),
+				
+   first_grade AS (SELECT title, text, intensity_percent, char_count, poem_emotion.emotion_id, author.grade_id, gender.name AS gender
+				FROM poem
+			INNER JOIN poem_emotion ON poem.id=poem_emotion.id
+					INNER JOIN author ON poem.author_id=author.id
+					INNER JOIN gender ON author.gender_id=gender.id
+				WHERE poem_emotion.emotion_id = 1
+				AND author.grade_id = 1
+				ORDER BY intensity_percent DESC
+				LIMIT 5)
+	SELECT *
+	FROM fifth_grade
+	UNION ALL
+	SELECT *
+	FROM first_grade
+	ORDER BY intensity_percent;
