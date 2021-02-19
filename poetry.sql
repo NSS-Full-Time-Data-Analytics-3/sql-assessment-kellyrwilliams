@@ -26,5 +26,23 @@ ORDER BY grade.name
 /*Question 1.c Answer: There are consistently more females than males across all grades - almost double the amount for some grades!*/
 
 --Question 2
-SELECT * 
-FROM emotion
+		
+SELECT COUNT(title) as count_death_poems, 
+		(SELECT COUNT(title) as count_love_poems
+			FROM poem WHERE text ILIKE '%love%'),
+		 		(SELECT AVG(char_count) AS avg_char_count_death
+				FROM poem
+				WHERE text ILIKE '%death%'),
+						 (SELECT AVG(char_count) AS avg_char_count_love
+				 			FROM poem
+				 			WHERE text ILIKE '%love%')
+			FROM poem
+			WHERE text ILIKE '%death%'
+
+--Answer: Total poems that mention love (4464)
+--total poems that mention death (86)
+--avg_char_count_love (226)
+--avg_char_count_death (342)
+
+
+--Question 3
