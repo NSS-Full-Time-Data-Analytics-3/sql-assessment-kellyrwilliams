@@ -10,7 +10,7 @@ ORDER BY grade.name
 --Question 1.b
 SELECT grade.name AS grade, 
 		COUNT(CASE WHEN gender.name = 'Female' THEN 'Female' END) AS female_count,
-		COUNT(CASE WHEN gender.name = 'Male' THEN 'Male'END) AS total_males
+		COUNT(CASE WHEN gender.name = 'Male' THEN 'Male'END) AS male_count
 FROM author
 	INNER JOIN grade ON author.grade_id=grade.id
 	INNER JOIN gender ON author.gender_id=gender.id
@@ -49,10 +49,10 @@ SELECT COUNT(title) as count_death_poems,
 SELECT emotion.name, AVG(intensity_percent) as avg_intensity, AVG(char_count) as avg_char_count
 FROM poem_emotion
 INNER JOIN emotion ON poem_emotion.emotion_id=emotion.id
-INNER JOIN poem ON poem_emotion.id=poem.id
+INNER JOIN poem ON poem_emotion.poem_id=poem.id
 GROUP BY emotion.name
 ORDER BY avg_char_count
---Answer 3.a: Joyful poems are associated with the longest poems and sadness are associated with the shortest poems
+--Answer 3.a: Joyful poems are associated with the shortest poems and anger are associated with the longest poems.
 
 --Question 3.b
 
@@ -60,27 +60,27 @@ WITH joy_avg AS
 	(SELECT emotion.name as emotion, AVG(char_count) as avg_joy_char_count
 	FROM poem_emotion
 			INNER JOIN emotion ON poem_emotion.emotion_id=emotion.id
-			INNER JOIN poem ON poem_emotion.id=poem.id
+			INNER JOIN poem ON poem_emotion.poem_id=poem.id
 	GROUP BY emotion.name)
 
 SELECT emotion, avg_joy_char_count, title as poem_title, text as poem_text, char_count, intensity_percent
 FROM joy_avg
 LEFT JOIN emotion ON joy_avg.emotion=emotion.name
 	INNER JOIN poem_emotion ON poem_emotion.emotion_id=emotion.id
-	INNER JOIN poem ON poem_emotion.id=poem.id
+	INNER JOIN poem ON poem_emotion.poem_id=poem.id
 WHERE emotion.name ILIKE 'Joy'
 ORDER BY intensity_percent DESC
 LIMIT 5;
 
-/*Answer 3b - The most joyful poem shares the highest intensity at 98 but it has a character count of 336, 
-which is much higher than the average character count for joyful poems. 
+/*Answer 3b - The most joyful poem is "My dog" with an intensity percent of 99 but it has a character count of 148, 
+which is much less than the average character count for joyful poems. 
 I do not think these are all classified correctly because it seems like a joyful topic is ambiguous. 
 Is a poem classified as joyful if it's not obviously sad, angry or fearful? The category seems too broad.*/
 
 --Question 4
 WITH fifth_grade AS (SELECT title, text, intensity_percent, char_count, poem_emotion.emotion_id, author.grade_id, gender.name AS gender
 				FROM poem
-					INNER JOIN poem_emotion ON poem.id=poem_emotion.id
+					INNER JOIN poem_emotion ON poem.id=poem_emotion.poem_id
 					INNER JOIN author ON poem.author_id=author.id
 					INNER JOIN gender ON author.gender_id=gender.id
 				WHERE poem_emotion.emotion_id = 1
@@ -90,7 +90,7 @@ WITH fifth_grade AS (SELECT title, text, intensity_percent, char_count, poem_emo
 				
    first_grade AS (SELECT title, text, intensity_percent, char_count, poem_emotion.emotion_id, author.grade_id, gender.name AS gender
 				FROM poem
-			INNER JOIN poem_emotion ON poem.id=poem_emotion.id
+			INNER JOIN poem_emotion ON poem.id=poem_emotion.poem_id
 					INNER JOIN author ON poem.author_id=author.id
 					INNER JOIN gender ON author.gender_id=gender.id
 				WHERE poem_emotion.emotion_id = 1
@@ -107,7 +107,7 @@ WITH fifth_grade AS (SELECT title, text, intensity_percent, char_count, poem_emo
 /* Answers:
 4a. Fifth graders write teh angriest poems
 4b. Females appear more in the top-5 for grades 1 and 5
-4c. The poem "Rabbits" is my favorite because it uses the phrase "chomp on carrots"*/
+4c. Cheese?!!!
 
 --Question 5:
 
@@ -117,7 +117,7 @@ SELECT author.grade_id as grade,
 		COUNT(CASE WHEN emotion.name = 'Sadness' THEN 'sadness' END) AS sadness_count,
 		COUNT(CASE WHEN emotion.name = 'Fear' THEN 'fear' END) AS fear_count
 FROM poem
-		INNER JOIN poem_emotion ON poem.id=poem_emotion.id
+		INNER JOIN poem_emotion ON poem.id=poem_emotion.poem_id
 		INNER JOIN emotion ON poem_emotion.emotion_id=emotion.id
 		INNER JOIN author ON poem.author_id=author.id
 		INNER JOIN gender ON author.gender_id=gender.id
